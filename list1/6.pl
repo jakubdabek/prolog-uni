@@ -2,7 +2,7 @@ primes(Lo, Hi, N) :-
     between(Lo, Hi, N),
     is_prime(N).
 
-is_prime(2).
+is_prime(2) :- !.
 is_prime(X) :-
     X > 2,
     Max is eval(ceiling(sqrt(X)) + 1),
@@ -14,6 +14,7 @@ is_prime(X) :-
         )
     ).
 
+% Eratostenes' sieve, solutions borrowed from Rosetta Code for testing efficiency
 primes2(X, PS) :- X > 1, range(2, X, R), sieve2(X, R, PS).
  
 sieve2(X, [H | T], [H | T]) :- H*H > X, !.
