@@ -27,7 +27,9 @@ my_delete([], _, []).
 
 % quicksort(Xs, Ys) :- Ys is Xs sorted with the quicksort algorithm
 quicksort([], []).
-quicksort([X], [X]).
+quicksort([X], [X]) :- !.
+quicksort([X, Y], [X, Y]) :- X =< Y, !.
+quicksort([X, Y], [Y, X]) :- !.
 quicksort([X|Xs], Ys) :-
     my_partition(Xs, X, Smaller, Larger),
     quicksort(Smaller, SmallerSorted),
@@ -36,9 +38,9 @@ quicksort([X|Xs], Ys) :-
 
 
 % my_partition(Xs, Y, Smaller, Larger) :- Smaller contains elements from Xs smaller than Y, Larger contains elements larger
-my_partition([X|Xs], Y, [X|Smaller], Larger) :- X < Y, my_partition(Xs, Y, Smaller, Larger).
-my_partition([X|Xs], Y, Smaller, [X|Larger]) :- X >= Y, my_partition(Xs, Y, Smaller, Larger).
-my_partition([], _, [], []).
+my_partition([], _, [], []) :- !.
+my_partition([X|Xs], Y, [X|Smaller], Larger) :- X < Y, my_partition(Xs, Y, Smaller, Larger), !.
+my_partition([X|Xs], Y, Smaller, [X|Larger]) :- my_partition(Xs, Y, Smaller, Larger), !.
 
 
 % insertion_sort(Xs, Ys) :- Ys is Xs sorted with the insertion sort algorithm
@@ -107,3 +109,17 @@ unique([X|Xs], [X|Ys]) :-
 % nonmember(X, Xs) :- X is not a member of the list Xs
 nonmember(X, [Y|Ys]) :- X \= Y, nonmember(X, Ys).
 nonmember(_, []).
+
+unique2(Xs, Ys) :- unique2(Xs, [], Ys).
+
+unique2([], _, []).
+unique2([X|Xs], Uniq, Ys) :-
+    member(X, Uniq),
+    unique2(Xs, Uniq, Ys).
+unique2([X|Xs], Uniq, [X|Ys]) :-
+    nonmember(X, Uniq),
+    unique2(Xs, [X|Uniq], Ys).
+unique2([X|Xs], Uniq, Ys) :-
+    member(X, Xs),
+    nonmember(X, Uniq),
+    unique2(Xs, Uniq, Ys).
