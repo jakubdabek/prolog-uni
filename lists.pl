@@ -26,10 +26,11 @@ my_delete([], _, []).
 
 
 % quicksort(Xs, Ys) :- Ys is Xs sorted with the quicksort algorithm
+quicksort(Xs, _) :- nonground(Xs, _), !, fail.
 quicksort([], []).
 quicksort([X], [X]) :- !.
 quicksort([X, Y], [X, Y]) :- X =< Y, !.
-quicksort([X, Y], [Y, X]) :- !.
+quicksort([X, Y], [Y, X]) :- X > Y, !.
 quicksort([X|Xs], Ys) :-
     my_partition(Xs, X, Smaller, Larger),
     quicksort(Smaller, SmallerSorted),
