@@ -6,5 +6,4 @@ once(X, Xs) :-
 % twice(X, Xs) :- X occurs only twice in list Xs
 twice(X, Xs) :-
     select(X, Xs, Ys),
-    select(X, Ys, Zs),
-    \+ member(X, Zs).
+    once(X, Ys).

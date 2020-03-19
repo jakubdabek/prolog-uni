@@ -4,3 +4,7 @@ middle(Xs, X) :-
     length(Ys, Ylen),
     length(Zs, Zlen),
     Ylen is Zlen, !.
+
+middle2(Xs, X) :-
+    append(Ys, [X|Zs], Xs),
+    same_length(Ys, Zs), !.
