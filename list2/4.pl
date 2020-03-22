@@ -67,22 +67,21 @@ operands(*, normal, /, normal, inverted).
 operands(*, inverted, *, inverted, inverted).
 operands(*, inverted, /, inverted, normal).
 
-same_priority(Term, OpType, Terms) :-
+same_priority(Term, OpType, Terms-TermsRest) :-
     Term =.. [Mode, Expr],
     Expr =.. [Op, X, Y],
     operands(OpType, Mode, Op, LeftMode, RightMode),
     Left =.. [LeftMode, X],
     Right =.. [RightMode, Y],
-    same_priority(Left, OpType, LeftTerms),
-    same_priority(Right, OpType, RightTerms),
-    append(LeftTerms, RightTerms, Terms), !.
+    same_priority(Left, OpType, Terms-RightTerms),
+    same_priority(Right, OpType, RightTerms-TermsRest), !.
 
 same_priority(Term, OpType, Terms) :-
     Term =.. [Op, _, _],
     operands(OpType, normal, Op, _, _),
-    same_priority(normal(Term), OpType, Terms), !.
+    same_priority(normal(Term), OpType, Terms-[]), !.
 
-same_priority(Term, _, [Term]).
+same_priority(Term, _, [Term|Terms]-Terms).
 
 
 same_priority_2(X*Y, *, Terms) :-
