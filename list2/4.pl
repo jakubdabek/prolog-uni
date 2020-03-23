@@ -67,44 +67,16 @@ operands(*, normal, /, normal, inverted).
 operands(*, inverted, *, inverted, inverted).
 operands(*, inverted, /, inverted, normal).
 
-same_priority(Term, OpType, Terms-TermsRest) :-
-    Term =.. [Mode, Expr],
-    Expr =.. [Op, X, Y],
-    operands(OpType, Mode, Op, LeftMode, RightMode),
-    Left =.. [LeftMode, X],
-    Right =.. [RightMode, Y],
-    same_priority(Left, OpType, Terms-RightTerms),
-    same_priority(Right, OpType, RightTerms-TermsRest), !.
-
 same_priority(Term, OpType, Terms) :-
-    Term =.. [Op, _, _],
+    functor(Term, Op, 2),
     operands(OpType, normal, Op, _, _),
-    same_priority(normal(Term), OpType, Terms-[]), !.
+    same_priority_mode(normal, Term, OpType, Terms-[]), !.
 
-same_priority(Term, _, [Term|Terms]-Terms).
+same_priority_mode(Mode, Term, OpType, Terms-TermsRest) :-
+    Term =.. [Op, Left, Right],
+    operands(OpType, Mode, Op, LeftMode, RightMode),
+    same_priority_mode(LeftMode, Left, OpType, Terms-RightTerms),
+    same_priority_mode(RightMode, Right, OpType, RightTerms-TermsRest), !.
 
-
-same_priority_2(X*Y, *, Terms) :-
-    same_priority_2(mul(X*Y), *, Terms), !.
-same_priority_2(X/Y, *, Terms) :-
-    same_priority_2(div(X/Y), *, Terms), !.
-same_priority_2(mul(X*Y), *, Terms) :-
-    same_priority_2(mul(X), *, XTerms),
-    same_priority_2(mul(Y), *, YTerms),
-    append(XTerms, YTerms, Terms), !.
-same_priority_2(mul(X/Y), *, Terms) :-
-    same_priority_2(mul(X), *, XTerms),
-    same_priority_2(div(Y), *, YTerms),
-    append(XTerms, YTerms, Terms), !.
-same_priority_2(div(X*Y), *, Terms) :-
-    same_priority_2(div(X), *, XTerms),
-    same_priority_2(div(Y), *, YTerms),
-    append(XTerms, YTerms, Terms), !.
-same_priority_2(div(X/Y), *, Terms) :-
-    same_priority_2(div(X), *, XTerms),
-    same_priority_2(mul(Y), *, YTerms),
-    append(XTerms, YTerms, Terms), !.
-
-same_priority_2(mul(X), *, [mul(X)]) :- !.
-same_priority_2(div(X), *, [div(X)]) :- !.
-same_priority_2(Term, _, [Term]).
+same_priority_mode(Mode, Term, _, [ModeTerm|Terms]-Terms) :-
+    ModeTerm =.. [Mode, Term].
