@@ -124,3 +124,7 @@ unique2([X|Xs], Uniq, Ys) :-
     member(X, Xs),
     nonmember(X, Uniq),
     unique2(Xs, Uniq, Ys).
+
+
+% intersect(Xs, Ys, Zs) :- Zs is a list of all elements that are both in Xs an Ys
+intersect(Xs, Ys, Zs) :- findall(X, (member(X, Xs), memberchk(X, Ys)), Zs).
