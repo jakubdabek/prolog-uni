@@ -128,3 +128,24 @@ unique2([X|Xs], Uniq, Ys) :-
 
 % intersect(Xs, Ys, Zs) :- Zs is a list of all elements that are both in Xs an Ys
 intersect(Xs, Ys, Zs) :- findall(X, (member(X, Xs), memberchk(X, Ys)), Zs).
+
+
+% myselect(X, Xs, Rest) :- select(X, Xs, Rest), nondet
+myselect(X, [H|T], Rest) :- myselect_(H, T, X, Rest).
+
+myselect_(H, T, H, T).
+myselect_(H, [H2|T], X, [H|Rest]) :- myselect_(H2, T, X, Rest).
+
+% myselect2(X, Xs, Rest) :- select(X, Xs, Rest), for some reason det on last element
+% probably this implementation of prolog indexes clauses only on first argument
+myselect2(X, [H|T], Rest) :- myselect2_(T, H, X, Rest).
+
+myselect2_(T, H, H, T).
+myselect2_([H2|T], H, X, [H|Rest]) :- myselect2_(T, H2, X, Rest).
+
+
+% select_adjacent(X, Y, Xs, Rest) :- Xs with adjacent elements X and Y removes is Rest
+select_adjacent(X, Y, [H1,H2|Xs], Rest) :- select_adjacent_(Xs, H1, H2, X, Y, Rest).
+
+select_adjacent_(Xs, H1, H2, H1, H2, Xs).
+select_adjacent_([H3|Xs], H1, H2, X, Y, [H1|Rest]) :- select_adjacent_(Xs, H2, H3, X, Y, Rest).
