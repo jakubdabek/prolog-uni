@@ -240,8 +240,16 @@ combination_missing_var(N, [_|T],  C   ) :- combination_missing_var(N1, T, C), s
 terms_to_list((Term, Terms), [Term|Terms1]) :- !, terms_to_list(Terms, Terms1).
 terms_to_list(Term, [Term]).
 
+translate_term(duze(N), big(N)).
+translate_term(srednie(N), medium(N)).
+translate_term(male(N), small(N)).
+
+translate_terms(Terms, Translated) :-
+    maplist(translate_term, Terms, Translated).
+
 square_terms(Terms, List) :-
-    terms_to_list(Terms, List1),
+    terms_to_list(Terms, List2),
+    translate_terms(List2, List1),
     length(List, 3),
     (   member(big(NB), List1)
     ->  member(big(NB), List)
@@ -258,30 +266,45 @@ square_terms(Terms, List) :-
     !.
 
 
-find_stick_combinations(N, Terms, Sticks) :-
+find_stick_combinations(Taken, Terms, Sticks) :-
     square_terms(Terms, TermList),
-    all_sticks(All),
     !,
-    combination_missing(N, All, Sticks),
-    check_sticks(Sticks, TermList).
+    check_sticks(Taken, TermList, Sticks).
 
 
-contains_square(Sticks, Square) :-
-    length(Square, N),
-    intersection(Sticks, Square, Intersection),
+contains(List1, List2) :-
+    subset(List2, List1).
+
+contains1(List1, List2) :-
+    length(List2, N),
+    intersection(List1, List2, Intersection),
     length(Intersection, N).
 
+contains2(List1, List2) :-
+    forall(member(Elem, List2), memberchk(Elem, List1)).
 
-check_term(big(N), N, Squares) :- big_squares(Squares).
-check_term(medium(N), N, Squares) :- medium_squares(Squares).
-check_term(small(N), N, Squares) :- small_squares(Squares).
 
-check_sticks(_, []) :- !.
-check_sticks(Sticks, [Term|TermList]) :-
-    check_term(Term, N, Squares),
-    findall(S, (member(S, Squares), contains_square(Sticks, S)), Contained),
-    length(Contained, N),
-    check_sticks(Sticks, TermList).
+inspect_term(big(N), N, Squares) :- big_squares(Squares).
+inspect_term(medium(N), N, Squares) :- medium_squares(Squares).
+inspect_term(small(N), N, Squares) :- small_squares(Squares).
+
+union_all(Lists, Union) :- union_all(Lists, [], Union).
+union_all([], Acc, Acc) :- !.
+union_all([List|Lists], Acc, Union) :-
+    union(List, Acc, Acc1),
+    union_all(Lists, Acc1, Union).
+
+check_term(Term, Sticks) :-
+    inspect_term(Term, N, Squares),
+    !,
+    combination_nonvar(N, Squares, Combination),
+    union_all(Combination, Sticks).
+
+check_sticks(Taken, TermList, Sticks) :-
+    maplist(check_term, TermList, Sticks1),
+    union_all(Sticks1, Sticks),
+    length(Sticks, N),
+    Taken is 24 - N.
 
 
 zapalki(N, Terms) :-
