@@ -49,7 +49,7 @@ big_squares(Squares) :-
             h(1), h(2), h(3),
             v(1), v(2), v(3),
             h(10), h(11), h(12),
-            v(11), v(12), v(13)
+            v(10), v(11), v(12)
         ]
     ], !.
 
@@ -211,3 +211,80 @@ print_grid_v_row([X|VRow]) :-
     write(X),
     write('   '),
     print_grid_v_row(VRow).
+
+
+% combination(N, List, Combination) :- Combination of length N is a combination of List
+combination(N, List, Combination) :- var(N), !, combination_var(N, List, Combination).
+combination(N, List, Combination) :- nonvar(N), !, combination_nonvar(N, List, Combination).
+
+combination_nonvar(0, [], []) :- !.
+combination_nonvar(N, [H|T], [H|C]) :- succ(N1, N), combination_nonvar(N1, T, C).
+combination_nonvar(N, [_|T],  C   ) :- combination_nonvar(N, T, C).
+
+combination_var(0, [], []).
+combination_var(N, [H|T], [H|C]) :- combination_var(N1, T, C), succ(N1, N).
+combination_var(N, [_|T],  C   ) :- combination_var(N, T, C).
+
+% combination_missing(N, List, Combination) :- Combination is a combination of List with N elements missing
+combination_missing(N, List, Combination) :- var(N), !, combination_missing_var(N, List, Combination).
+combination_missing(N, List, Combination) :- nonvar(N), !, combination_missing_nonvar(N, List, Combination).
+
+combination_missing_nonvar(0, List, List) :- !.
+combination_missing_nonvar(N, [H|T], [H|C]) :- combination_missing_nonvar(N, T, C).
+combination_missing_nonvar(N, [_|T],  C   ) :- succ(N1, N), combination_missing_nonvar(N1, T, C).
+
+combination_missing_var(0, List, List).
+combination_missing_var(N, [H|T], [H|C]) :- combination_missing_var(N, T, C).
+combination_missing_var(N, [_|T],  C   ) :- combination_missing_var(N1, T, C), succ(N1, N).
+
+terms_to_list((Term, Terms), [Term|Terms1]) :- !, terms_to_list(Terms, Terms1).
+terms_to_list(Term, [Term]).
+
+square_terms(Terms, List) :-
+    terms_to_list(Terms, List1),
+    length(List, 3),
+    (   member(big(NB), List1)
+    ->  member(big(NB), List)
+    ;   member(big(0), List)
+    ),
+    (   member(medium(NM), List1)
+    ->  member(medium(NM), List)
+    ;   member(medium(0), List)
+    ),
+    (   member(small(NS), List1)
+    ->  member(small(NS), List)
+    ;   member(small(0), List)
+    ),
+    !.
+
+
+find_stick_combinations(N, Terms, Sticks) :-
+    square_terms(Terms, TermList),
+    all_sticks(All),
+    !,
+    combination_missing(N, All, Sticks),
+    check_sticks(Sticks, TermList).
+
+
+contains_square(Sticks, Square) :-
+    length(Square, N),
+    intersection(Sticks, Square, Intersection),
+    length(Intersection, N).
+
+
+check_term(big(N), N, Squares) :- big_squares(Squares).
+check_term(medium(N), N, Squares) :- medium_squares(Squares).
+check_term(small(N), N, Squares) :- small_squares(Squares).
+
+check_sticks(_, []) :- !.
+check_sticks(Sticks, [Term|TermList]) :-
+    check_term(Term, N, Squares),
+    findall(S, (member(S, Squares), contains_square(Sticks, S)), Contained),
+    length(Contained, N),
+    check_sticks(Sticks, TermList).
+
+
+zapalki(N, Terms) :-
+    find_stick_combinations(N, Terms, Sticks),
+    writeln("Rozwiazanie"),
+    print_sticks(Sticks).
