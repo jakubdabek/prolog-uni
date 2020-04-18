@@ -13,6 +13,11 @@ execute(n, T, I, S) :- execute(next, T, I, S).
 execute(p, T, I, S) :- execute(prev, T, I, S).
 
 execute(in, Term, Index, Stack) :-
+    atomic(Term),
+    !,
+    write('can\'t go into atom!'), nl,
+    browse_node(Term, Index, Stack).
+execute(in, Term, Index, Stack) :-
     !,
     arg(1, Term, Child),
     browse_node(Child, 1, [node(Term, Index)|Stack]).
@@ -22,18 +27,21 @@ execute(out, _, _, [node(Term, Index)|Stack]) :-
     !,
     browse_node(Term, Index, Stack).
 
-execute(next, _, Index, Stack) :-
+execute(next, Term, Index, Stack) :-
     !,
     succ(Index, Index1),
-    execute_sibling(Stack, Index1).
+    execute_sibling(Term, Index, Index1, Stack).
 
-execute(prev, _, Index, Stack) :-
+execute(prev, Term, Index, Stack) :-
     !,
     succ(Index1, Index),
-    execute_sibling(Stack, Index1).
+    execute_sibling(Term, Index, Index1, Stack).
 
 
-execute_sibling([node(Term, PrevIndex)|Stack], Index1) :-
+execute_sibling(Current, CurrentIndex, SiblingIndex, [node(Parent, Index)|Stack]) :-
     !,
-    arg(Index1, Term, Next), % fails if out of bounds
-    browse_node(Next, Index1, [node(Term, PrevIndex)|Stack]).
+    (   arg(SiblingIndex, Parent, Sibling) % fails if out of bounds
+    ->  browse_node(Sibling, SiblingIndex, [node(Parent, Index)|Stack])
+    ;   write('no more siblings!'), nl,
+        browse_node(Current, CurrentIndex, [node(Parent, Index)|Stack])
+    ).
