@@ -60,4 +60,3 @@ print_board([Row|Board]) :-
     ->  print_board(Board)
     ;   print_sep(Row), nl
     ).
-
