@@ -23,15 +23,6 @@ save(Goal) :- clause(Goal, !), !.
 save(Goal) :- asserta((Goal :- !)).
 
 :- dynamic fib_mem/2.
-fib_mem(1, 0) :- !.
-fib_mem(2, 1) :- !.
-fib_mem(N, F) :-
-    N > 2,
-    N1 is N - 1,
-    N2 is N - 2,
-    lemma(fib_mem(N1, F1)),
-    lemma(fib_mem(N2, F2)),
-    F is F1 + F2, !, save(fib_mem(N, F)).
 
 clear_fib_mem :- retractall(fib_mem(_, _)).
 reset_fib_mem :-
@@ -45,5 +36,11 @@ reset_fib_mem :-
             N2 is N - 2,
             lemma(fib_mem(N1, F1)),
             lemma(fib_mem(N2, F2)),
-            F is F1 + F2, !, save(fib_mem(N, F))
+            F is F1 + F2,
+            !,
+            save(fib_mem(N, F))
     )).
+
+fib_mem(N, F) :-
+    reset_fib_mem,
+    fib_mem(N, F).
