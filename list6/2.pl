@@ -63,8 +63,10 @@ check_true((C1, C2), Memory) :-
     check_true(C2, Memory).
 check_true((C1; C2), Memory) :-
     !,
-    check_true(C1, Memory);
-    check_true(C2, Memory).
+    (
+        check_true(C1, Memory), !
+    ;   check_true(C2, Memory)
+    ).
 check_true(Cond, Memory) :-
     Cond =.. [Op, Left, Right],
     eval_expr(Left, Memory, ValueLeft),
