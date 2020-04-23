@@ -18,13 +18,13 @@ fill_row(Queens, N, Row) :-
     starting_color(N, StartingColor),
     fill_row(Queens, N, Row, StartingColor).
 
+field_type(Q, Q, Color, queen(Color)) :- !.
+field_type(_, _, Color, empty(Color)).
+
 fill_row([], _, [], _) :- !.
-fill_row([N|Queens], N, [queen(Color)|Row], Color) :-
+fill_row([Q|Queens], N, [Field|Row], Color) :-
     !,
-    switch_color(Color, Color1),
-    fill_row(Queens, N, Row, Color1).
-fill_row([_|Queens], N, [empty(Color)|Row], Color) :-
-    !,
+    field_type(Q, N, Color, Field),
     switch_color(Color, Color1),
     fill_row(Queens, N, Row, Color1).
 
