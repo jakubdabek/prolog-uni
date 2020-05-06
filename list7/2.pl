@@ -2,28 +2,24 @@
 
 % split_stream(XYs, Xs, Ys) :- Xs and Ys are streams containing elements from XYs
 split_stream(XYs, Xs, Ys) :-
-    split_stream(XYs, Xs, Ys, left).
-    
-split_stream(XYs, Xs, Ys, Dir) :-
-    var(XYs),
-    !,
-    freeze(XYs, split_stream(XYs, Xs, Ys, Dir)).
-split_stream([], [], [], _) :- !.
-split_stream([X|XYs], [X|Xs], Ys, left) :-
-    !,
-    split_stream(XYs, Xs, Ys, right).
-split_stream([Y|XYs], Xs, [Y|Ys], right) :-
-    !,
-    split_stream(XYs, Xs, Ys, left).
+    freeze(XYs, split_stream_nonvar(XYs, Xs, Ys)).
 
-merge_sort_stream(Stream, Sorted) :-
-    \+ ground(Stream),
+split_stream_nonvar([], [], []) :- !.
+split_stream_nonvar([X|XYs], [X|Xs], Ys) :-
     !,
-    when(ground(Stream), merge_sort_stream(Stream, Sorted)).
-merge_sort_stream([], []) :- !.
-merge_sort_stream([X], [X]) :- !.
+    split_stream(XYs, Ys, Xs). % Xs and Ys inverted
+
+% merge_sort_stream(Stream, Sorted) :- Sorted is Stream sorted
 merge_sort_stream(Stream, Sorted) :-
+    freeze(Stream, merge_sort_stream_nonvar(Stream, Sorted)).
+
+merge_sort_stream_nonvar([], []) :- !.
+merge_sort_stream_nonvar([S|Stream], Sorted) :-
+    freeze(Stream, merge_sort_stream_nonvar2(S, Stream, Sorted)).
+
+merge_sort_stream_nonvar2(S, [], [S]) :- !.
+merge_sort_stream_nonvar2(S, Stream, Sorted) :-
     merge_stream(SortedXs, SortedYs, Sorted),
     merge_sort_stream(Xs, SortedXs),
     merge_sort_stream(Ys, SortedYs),
-    split_stream(Stream, Xs, Ys).
+    split_stream([S|Stream], Xs, Ys).
