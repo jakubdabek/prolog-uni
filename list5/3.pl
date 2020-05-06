@@ -15,7 +15,7 @@ execute(p, T, I, S) :- execute(prev, T, I, S).
 execute(in, Term, Index, Stack) :-
     atomic(Term),
     !,
-    write('can\'t go into atom!'), nl,
+    write("can't go into atom!"), nl,
     browse_node(Term, Index, Stack).
 execute(in, Term, Index, Stack) :-
     !,
@@ -42,6 +42,6 @@ execute_sibling(Current, CurrentIndex, SiblingIndex, [node(Parent, Index)|Stack]
     !,
     (   arg(SiblingIndex, Parent, Sibling) % fails if out of bounds
     ->  browse_node(Sibling, SiblingIndex, [node(Parent, Index)|Stack])
-    ;   write('no more siblings!'), nl,
+    ;   write("no more siblings!"), nl,
         browse_node(Current, CurrentIndex, [node(Parent, Index)|Stack])
     ).
