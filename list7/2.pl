@@ -6,7 +6,6 @@ split_stream(XYs, Xs, Ys) :-
 
 split_stream_nonvar([], [], []) :- !.
 split_stream_nonvar([X|XYs], [X|Xs], Ys) :-
-    !,
     split_stream(XYs, Ys, Xs). % Xs and Ys inverted
 
 % merge_sort_stream(Stream, Sorted) :- Sorted is Stream sorted
