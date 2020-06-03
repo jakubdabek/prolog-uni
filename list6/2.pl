@@ -2,9 +2,11 @@
 :- ['./1.pl'].
 
 execute_file(FileName) :-
-    open(FileName, read, Stream),
-    scanner(Stream, Tokens),
-    close(Stream),
+    setup_call_cleanup(
+        open(FileName, read, Stream),
+        scanner(Stream, Tokens),
+        close(Stream)
+    ),
     phrase(program(Program), Tokens),
     execute(Program).
 
