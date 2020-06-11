@@ -1,7 +1,7 @@
 :- use_module(library(clpfd)).
 
 label_tetravex(Name, Board, Options) :-
-    (var(Options) -> Options = [ffc]; true),
+    (var(Options) -> Options = [ffc, down, enum]; true),
     tetravex(Name, Board),
     append(Board, Tiles),
     append(Tiles, All),
@@ -112,3 +112,17 @@ tiles(test33, 3, 3, Tiles) :-
         [5,1,8,4],[8,0,4,0],[4,2,9,7],
         [3,0,8,4],[9,6,0,6],[5,4,5,6]
     ].
+
+
+tetravex_check_options :-
+    member(Order, [leftmost, ff, ffc, min, max]),
+    member(ValueOrder, [up, down]),
+    member(Branching, [step, enum, bisect]),
+    format('~w ~w ~w ', [Order, ValueOrder, Branching]),
+    member(Name, [test22, test32, test33, t6a, t6b, t6c]),
+    time(catch(
+        call_with_time_limit(10, once(label_tetravex(Name, _, [Order,ValueOrder,Branching]))),
+        time_limit_exceeded,
+        writeln('<time limit exceeded>')
+    )),
+    fail.

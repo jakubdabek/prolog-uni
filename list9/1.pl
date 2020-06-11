@@ -24,9 +24,10 @@ list_maximum([X|Xs], Max) :- foldl(max_step, Xs, X, Max).
 max_step2(X, Max, Max) :- Max #>= X.
 list_maximum2(Xs, Max) :- foldl(max_step2, Xs, Max, Max).
 
-label_schedule(MaxTime, Starts, StopTime) :-
+label_schedule(MaxTime, Starts, StopTime, Options) :-
+    (var(Options) -> Options = [ffc, bisect]; true),
     schedule(MaxTime, Starts, StopTime),
-    labeling([min(StopTime), ff], [StopTime|Starts]).
+    labeling([min(StopTime)|Options], [StopTime|Starts]).
 
 schedule(MaxTime, Starts, StopTime) :-
     tasks(SimpleTasks),
@@ -39,4 +40,16 @@ schedule(MaxTime, Starts, StopTime) :-
     cumulative(Tasks2, [limit(R2)]),
     StopTime in 0..MaxTime,
     list_maximum(Ends, StopTime).
-    
+
+
+schedule_check_options :-
+    member(Order, [leftmost, ff, ffc, min, max]),
+    member(ValueOrder, [up, down]),
+    member(Branching, [step, enum, bisect]),
+    format('~w ~w ~w ', [Order, ValueOrder, Branching]),
+    time(catch(
+        call_with_time_limit(10, once(label_schedule(20, _, _, [Order,ValueOrder,Branching]))),
+        time_limit_exceeded,
+        writeln('<time limit exceeded>')
+    )),
+    fail.

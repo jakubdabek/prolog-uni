@@ -13,7 +13,7 @@ label_squares_simple(Sizes, Width, Height, Coords) :-
     once(label_squares(Sizes, Width, Height, Coords, _, _)).
 
 label_squares(Sizes, Width, Height, Coords, Rects, Options) :-
-    (var(Options) -> Options = [max]; true),
+    (var(Options) -> Options = [down, enum]; true),
     squares(Sizes, Width, Height, Coords, Rects),
     labeling(Options, Coords).
 
@@ -25,3 +25,16 @@ squares(Sizes, Width, Height, All, Rects) :-
     maplist(prepare(Width, Height), Sizes, Xs, Ys, Rects),
     disjoint2(Rects),
     zip(Xs, Ys, All).
+
+
+squares_check_options :-
+    member(Order, [leftmost, ff, ffc, min, max]),
+    member(ValueOrder, [up, down]),
+    member(Branching, [step, enum, bisect]),
+    format('~w ~w ~w ', [Order, ValueOrder, Branching]),
+    time(catch(
+        call_with_time_limit(10, once(label_squares([1,1,1,1,2,2,2,2,3,3], 7, 6, _, _, [Order,ValueOrder,Branching]))),
+        time_limit_exceeded,
+        writeln('<time limit exceeded>')
+    )),
+    fail.
